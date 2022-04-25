@@ -31,7 +31,7 @@ const Metaverse: FC = () => {
         locationX: 0,
         locationY: 0,
     });
-    const metalandContractAddress = "0x2718E2a93Ad6731F45646ECCF51aB12406A9Ab8D";
+    const metalandContractAddress = "0xb5F257d4a83fE43401a5974e60d3004c2aC53734";
 
     const worldImage = new Image();
     worldImage.src = MetalandImage;
@@ -145,7 +145,7 @@ const Metaverse: FC = () => {
 
     const assignPlot = async () => {
         const assigned = await isPlotAssigned(plotId);
-        if (!assigned) {
+        if (assigned) {
             enqueueSnackbar("Plot is already assigned");
         }
         else {
@@ -162,13 +162,13 @@ const Metaverse: FC = () => {
                 }
                 const metadataFile = new Moralis.File("metadata.json", { base64: btoa(JSON.stringify(metadata)) });
                 await metadataFile.saveIPFS();
-                const metadataURI = metadataFile.url;
+                const metadataURI = metadataFile.ipfs();
                 await mint(metadataURI);
             }
         }
     }
 
-    const mint = async (_tokenURI: any) => {
+    const mint = async (_tokenURI: string) => {
         try {
             const transaction = await Moralis.executeFunction({
                 contractAddress: metalandContractAddress,
@@ -190,14 +190,6 @@ const Metaverse: FC = () => {
 
     const isPlotAssigned = async (plotId: string) => {
         try {
-            console.log({
-                contractAddress: metalandContractAddress,
-                abi: metalandABI,
-                functionName: "exist",
-                params: {
-                    bytesId: plotId,
-                }
-            });
             return await Moralis.executeFunction({
                 contractAddress: metalandContractAddress,
                 abi: metalandABI,
@@ -207,7 +199,6 @@ const Metaverse: FC = () => {
                 }
             });
         } catch (error: any) {
-            console.log(error);
             enqueueSnackbar(error?.data?.message || error?.message || error || "Transaction Unsuccessful", {
                 variant: "error",
             });
@@ -279,8 +270,8 @@ const Metaverse: FC = () => {
                         sx={{ m: 2 }}
                     />
                     <TextField
-                        label="Location X"
-                        value={plotView.locationX}
+                        label="Location Y"
+                        value={plotView.locationY}
                         sx={{ m: 2 }}
                     />
                 </Box>
